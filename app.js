@@ -7,17 +7,40 @@ async function loadApps() {
   return res.json();
 }
 
+function resolveSitePath(path) {
+  if (!path) return "#";
+  if (/^(https?:)?\/\//.test(path) || path.startsWith("/")) return path;
+  const pathname = window.location.pathname;
+  const endsWithSlash = pathname.endsWith("/");
+  const lastPart = pathname.split("/").pop() || "";
+  const looksLikeFile = lastPart.includes(".");
+  let basePath = pathname;
+
+  if (endsWithSlash) {
+    basePath = pathname;
+  } else if (looksLikeFile) {
+    basePath = pathname.slice(0, pathname.lastIndexOf("/") + 1);
+  } else {
+    basePath = `${pathname}/`;
+  }
+
+  return `${window.location.origin}${basePath}${path}`;
+}
+
 function renderApps(apps) {
   const grid = document.getElementById("appsGrid");
   if (!grid) return;
 
   grid.innerHTML = apps
-    .map(
-      (app) => `
+    .map((app) => {
+      const homeUrl = resolveSitePath(app.homepage);
+      const appPageUrl = resolveSitePath(app.appPage);
+      const iconUrl = resolveSitePath(app.icon);
+      return `
       <article class="card">
         <div class="app-top">
-          <a class="icon-link" href="${app.homepage}" target="_blank" rel="noopener noreferrer" aria-label="Open ${app.name} home site">
-            <img class="icon" src="${app.icon}" alt="${app.name} icon" />
+          <a class="icon-link" href="${homeUrl}" aria-label="Open ${app.name} home site">
+            <img class="icon" src="${iconUrl}" alt="${app.name} icon" />
           </a>
           <div>
             <h2 class="app-name">${app.name}</h2>
@@ -25,12 +48,12 @@ function renderApps(apps) {
           </div>
         </div>
         <div class="actions">
-          <a class="button primary" href="${app.homepage}" target="_blank" rel="noopener noreferrer">Open App Site</a>
-          <a class="button" href="${app.homepage}">Home</a>
+          <a class="button primary" href="${homeUrl}">Open App Site</a>
+          <a class="button" href="${appPageUrl}">Home</a>
         </div>
       </article>
-    `,
-    )
+    `;
+    })
     .join("");
 }
 
