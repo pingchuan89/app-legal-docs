@@ -1,0 +1,10 @@
+window.APP_LIST = [
+  {
+    name: "NextYou",
+    slug: "nextyou",
+    icon: "assets/icons/nextyou-app-icon.png",
+    homepage: "nextyou/index.html",
+    appPage: "nextyou/index.html",
+    shortDescription: "Build your next self, one day at a time",
+  },
+];
